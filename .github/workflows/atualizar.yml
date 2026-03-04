@@ -13,21 +13,9 @@ jobs:
       - name: Baixar repositório
         uses: actions/checkout@v3
 
-      - name: Instalar Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Clonar Pluto Scraper
+      - name: Baixar lista Pluto BR
         run: |
-          git clone https://github.com/evoactivity/pluto-tv.git
-
-      - name: Gerar lista Pluto BR
-        run: |
-          cd pluto-tv
-          npm install
-          node index.js br
-          cp br.m3u8 ../pluto_br.m3u8
+          curl -L "https://service-stitcher.clusters.pluto.tv/v1/stitch/embed/hls/channel/5f1a5b4d8b0f3e0007a5f0d0/master.m3u8" -o pluto_br.m3u8
 
       - name: Instalar Python
         uses: actions/setup-python@v4
