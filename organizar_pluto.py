@@ -1,39 +1,25 @@
-origem = "pluto_br.m3u8"
+import requests
+
 saida = "pluto_br_final.m3u8"
 
-with open(saida, "w", encoding="utf-8") as out:
-    with open(origem, "r", encoding="utf-8") as f:
-        for linha in f:
+url = "https://api.pluto.tv/v2/channels?start=0&stop=999&country=BR"
 
-            # Se for URL de stream, adicionar parâmetro
-            if linha.startswith("http"):
-                if "deviceDNT=" not in linha:
-                    if "?" in linha:
-                        linha = linha.strip() + "&deviceDNT=0\n"
-                    else:
-                        linha = linha.strip() + "?deviceDNT=0\n"
+response = requests.get(url)
+canais = response.json()
 
-            if linha.startswith("#EXTINF"):
+with open(saida, "w", encoding="utf-8") as f:
+    f.write("#EXTM3U\n")
 
-                if 'group-title="' in linha:
-                    inicio = linha.find('group-title="') + 13
-                    fim = linha.find('"', inicio)
-                    grupo = linha[inicio:fim]
-                    linha = linha.replace(
-                        f'group-title="{grupo}"',
-                        f'group-title="{grupo.upper()}"'
-                    )
+    for canal in canais:
+        nome = canal["name"].upper()
+        grupo = canal.get("category", "PLUTO").upper()
+        logo = canal.get("solidLogoPNG", {}).get("path", "")
 
-                partes = linha.split(",")
-                nome = partes[1].strip()
+        stream = f"https://service-stitcher.clusters.pluto.tv/stitch/hls/channel/{canal['_id']}/master.m3u8?deviceDNT=0"
 
-                if nome.lower().startswith("pluto tv"):
-                    nome = nome[8:].strip()
+        f.write(
+            f'#EXTINF:-1 tvg-id="{canal["_id"]}" tvg-logo="{logo}" group-title="{grupo}",{nome}\n'
+        )
+        f.write(stream + "\n")
 
-                nome = nome.upper()
-
-                linha = linha.split(",")[0] + ", " + nome + "\n"
-
-            out.write(linha)
-
-print("Pluto organizada com sucesso!")
+print("Playlist gerada com sucesso!")
