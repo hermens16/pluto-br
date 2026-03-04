@@ -2,7 +2,7 @@ name: Atualizar Pluto BR
 
 on:
   schedule:
-    - cron: '0 9 * * *'  # Todo dia às 09:00 UTC
+    - cron: '0 9 * * *'
   workflow_dispatch:
 
 jobs:
@@ -13,12 +13,28 @@ jobs:
       - name: Baixar repositório
         uses: actions/checkout@v3
 
+      - name: Instalar Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Clonar Pluto Scraper
+        run: |
+          git clone https://github.com/evoactivity/pluto-tv.git
+
+      - name: Gerar lista Pluto BR
+        run: |
+          cd pluto-tv
+          npm install
+          node index.js br
+          cp br.m3u8 ../pluto_br.m3u8
+
       - name: Instalar Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
-      - name: Executar script
+      - name: Organizar lista
         run: python organizar_pluto.py
 
       - name: Commit e push
