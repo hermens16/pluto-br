@@ -5,7 +5,15 @@ saida = "pluto_br_final.m3u8"
 
 url = "https://api.pluto.tv/v2/channels?start=0&stop=500&country=BR"
 
-with urllib.request.urlopen(url) as response:
+req = urllib.request.Request(
+    url,
+    headers={
+        "User-Agent": "Mozilla/5.0",
+        "Accept": "application/json",
+    },
+)
+
+with urllib.request.urlopen(req) as response:
     data = json.loads(response.read().decode())
 
 with open(saida, "w", encoding="utf-8") as f:
