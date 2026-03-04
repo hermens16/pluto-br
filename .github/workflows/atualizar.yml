@@ -1,0 +1,30 @@
+name: Atualizar Pluto BR
+
+on:
+  schedule:
+    - cron: '0 9 * * *'  # Todo dia às 09:00 UTC
+  workflow_dispatch:
+
+jobs:
+  atualizar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v3
+
+      - name: Instalar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Executar script
+        run: python organizar_pluto.py
+
+      - name: Commit e push
+        run: |
+          git config --global user.name "hermens16"
+          git config --global user.email "hermens16@users.noreply.github.com"
+          git add .
+          git commit -m "Atualização automática diária" || echo "Sem mudanças"
+          git push
