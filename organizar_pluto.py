@@ -5,9 +5,16 @@ with open(saida, "w", encoding="utf-8") as out:
     with open(origem, "r", encoding="utf-8") as f:
         for linha in f:
 
+            # Se for URL de stream, adicionar parâmetro
+            if linha.startswith("http"):
+                if "deviceDNT=" not in linha:
+                    if "?" in linha:
+                        linha = linha.strip() + "&deviceDNT=0\n"
+                    else:
+                        linha = linha.strip() + "?deviceDNT=0\n"
+
             if linha.startswith("#EXTINF"):
 
-                # Deixar grupo em maiúsculo
                 if 'group-title="' in linha:
                     inicio = linha.find('group-title="') + 13
                     fim = linha.find('"', inicio)
@@ -17,11 +24,9 @@ with open(saida, "w", encoding="utf-8") as out:
                         f'group-title="{grupo.upper()}"'
                     )
 
-                # Processar nome do canal
                 partes = linha.split(",")
                 nome = partes[1].strip()
 
-                # remover "Pluto TV " do começo
                 if nome.lower().startswith("pluto tv"):
                     nome = nome[8:].strip()
 
