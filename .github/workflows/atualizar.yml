@@ -1,34 +1,27 @@
-name: Atualizar Pluto BR
+name: Atualizar Pluto Diário
 
 on:
   schedule:
-    - cron: '0 9 * * *'
+    - cron: '0 */6 * * *'
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   atualizar:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Baixar repositório
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Baixar lista Pluto BR
-        run: |
-          curl -L "https://service-stitcher.clusters.pluto.tv/v1/stitch/embed/hls/channel/5f1a5b4d8b0f3e0007a5f0d0/master.m3u8" -o pluto_br.m3u8
-
-      - name: Instalar Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
-
-      - name: Organizar lista
+      - name: Rodar script
         run: python organizar_pluto.py
 
       - name: Commit e push
         run: |
           git config --global user.name "hermens16"
-          git config --global user.email "hermens16@users.noreply.github.com"
+          git config --global user.email "bot@github.com"
           git add .
-          git commit -m "Atualização automática diária" || echo "Sem mudanças"
+          git commit -m "Atualização automática" || echo "Sem alterações"
           git push
