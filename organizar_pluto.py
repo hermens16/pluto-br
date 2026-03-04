@@ -1,4 +1,4 @@
-origem = r"C:\Users\User\Desktop\pluto_test\pluto_tv_scraper\plutotv_br.m3u8"
+origem = "pluto_br.m3u8"
 saida = "pluto_br_final.m3u8"
 
 with open(saida, "w", encoding="utf-8") as out:
