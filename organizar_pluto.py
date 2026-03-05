@@ -1,6 +1,7 @@
 import json
 import urllib.request
 
+entrada = "plutotv_br.m3u8"
 saida = "pluto_br_final.m3u8"
 
 url = "https://api.pluto.tv/v2/channels?start=0&stop=500&country=BR"
