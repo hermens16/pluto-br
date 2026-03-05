@@ -1,34 +1,39 @@
-origem = r"C:\Users\User\Desktop\pluto_test\pluto_tv_scraper\plutotv_br.m3u8"
+import json
+import urllib.request
+
 saida = "pluto_br_final.m3u8"
 
-with open(saida, "w", encoding="utf-8") as out:
-    with open(origem, "r", encoding="utf-8") as f:
-        for linha in f:
+url = "https://api.pluto.tv/v2/channels?start=0&stop=500&country=BR"
 
-            if linha.startswith("#EXTINF"):
+req = urllib.request.Request(
+    url,
+    headers={
+        "User-Agent": "Mozilla/5.0",
+        "Accept": "application/json",
+    },
+)
 
-                # Deixar grupo em maiúsculo
-                if 'group-title="' in linha:
-                    inicio = linha.find('group-title="') + 13
-                    fim = linha.find('"', inicio)
-                    grupo = linha[inicio:fim]
-                    linha = linha.replace(
-                        f'group-title="{grupo}"',
-                        f'group-title="{grupo.upper()}"'
-                    )
+with urllib.request.urlopen(req) as response:
+    data = json.loads(response.read().decode())
 
-                # Processar nome do canal
-                partes = linha.split(",")
-                nome = partes[1].strip()
+with open(saida, "w", encoding="utf-8") as f:
+    f.write("#EXTM3U\n")
 
-                # remover "Pluto TV " do começo
-                if nome.lower().startswith("pluto tv"):
-                    nome = nome[8:].strip()
+    for canal in data:
+        nome = canal["name"].upper()
 
-                nome = nome.upper()
+        if nome.startswith("PLUTO TV"):
+            nome = nome[8:].strip()
 
-                linha = linha.split(",")[0] + ", " + nome + "\n"
+        grupo = canal.get("category", "PLUTO").upper()
+        logo = canal.get("solidLogoPNG", {}).get("path", "")
+        canal_id = canal["_id"]
 
-            out.write(linha)
+        stream = f"https://service-stitcher.clusters.pluto.tv/stitch/hls/channel/{canal_id}/master.m3u8?deviceDNT=0"
 
-print("Pluto organizada com sucesso!")
+        f.write(
+            f'#EXTINF:-1 tvg-id="{canal_id}" tvg-logo="{logo}" group-title="{grupo}",{nome}\n'
+        )
+        f.write(stream + "\n")
+
+print("Playlist gerada com sucesso!")

@@ -1,0 +1,27 @@
+name: Atualizar Pluto Diário
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  atualizar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Rodar script
+        run: python organizar_pluto.py
+
+      - name: Commit e push
+        run: |
+          git config --global user.name "hermens16"
+          git config --global user.email "bot@github.com"
+          git add .
+          git commit -m "Atualização automática" || echo "Sem alterações"
+          git push
