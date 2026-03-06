@@ -1,43 +1,37 @@
-import json
-import urllib.request
-
+origem = "plutotv_br.m3u8"
 saida = "pluto_br_final.m3u8"
 
-url = "https://service-channels.clusters.pluto.tv/v1/guide?start=0&stop=999&country=BR&deviceType=web&deviceMake=Chrome"
+with open(origem, "r", encoding="utf-8") as f:
+    linhas = f.readlines()
 
-headers = {
-    "User-Agent": "Mozilla/5.0",
-    "Accept": "application/json"
-}
+with open(saida, "w", encoding="utf-8") as out:
 
-req = urllib.request.Request(url, headers=headers)
+    for linha in linhas:
 
-with urllib.request.urlopen(req) as response:
-    data = json.loads(response.read().decode())
+        if linha.startswith("#EXTINF"):
 
-canais = {}
+            if 'group-title="' in linha:
+                inicio = linha.find('group-title="') + 13
+                fim = linha.find('"', inicio)
+                grupo = linha[inicio:fim]
 
-for item in data["channels"]:
-    canais[item["_id"]] = item
+                linha = linha.replace(
+                    f'group-title="{grupo}"',
+                    f'group-title="{grupo.upper()}"'
+                )
 
-with open(saida, "w", encoding="utf-8") as f:
+            partes = linha.split(",")
 
-    f.write("#EXTM3U\n")
+            if len(partes) > 1:
+                nome = partes[1].strip()
 
-    for canal in canais.values():
+                if nome.lower().startswith("pluto tv"):
+                    nome = nome[8:].strip()
 
-        nome = canal["name"].upper()
+                nome = nome.upper()
 
-        if nome.startswith("PLUTO TV"):
-            nome = nome[8:].strip()
+                linha = partes[0] + "," + nome + "\n"
 
-        grupo = canal.get("category", "PLUTO").upper()
-        logo = canal.get("logo", {}).get("path", "")
-        canal_id = canal["_id"]
+        out.write(linha)
 
-        stream = f"https://service-stitcher.clusters.pluto.tv/stitch/hls/channel/{canal_id}/master.m3u8?deviceDNT=0"
-
-        f.write(f'#EXTINF:-1 tvg-id="{canal_id}" tvg-logo="{logo}" group-title="{grupo}",{nome}\n')
-        f.write(stream + "\n")
-
-print("Playlist gerada com sucesso!")
+print("Playlist organizada com sucesso!")
