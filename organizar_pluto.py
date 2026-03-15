@@ -90,7 +90,17 @@ while i < len(linhas):
 
             linha = partes[0] + "," + nome + "\n"
 
-        url = linhas[i+1]
+        # encontrar a URL real do canal
+        j = i + 1
+        url = ""
+
+        while j < len(linhas):
+
+            if linhas[j].startswith("http"):
+                url = linhas[j]
+                break
+
+            j += 1
 
         if grupo not in grupos:
             grupos[grupo] = []
@@ -98,7 +108,7 @@ while i < len(linhas):
         grupos[grupo].append(linha)
         grupos[grupo].append(url)
 
-        i += 2
+        i = j + 1
         continue
 
     i += 1
