@@ -1,7 +1,6 @@
 origem = "plutotv_br.m3u8"
 saida = "pluto_br_final.m3u8"
 
-# grupos que irão virar SÉRIES
 series = [
     "JORNADA NAS ESTRELAS",
     "RETRÔ",
@@ -12,7 +11,6 @@ series = [
     "SOUTH PARK"
 ]
 
-# grupos que irão virar DOCUMENTÁRIOS
 documentarios = [
     "NATUREZA",
     "CURIOSIDADES",
@@ -20,7 +18,7 @@ documentarios = [
     "INVESTIGAÇÃO"
 ]
 
-ordem_grupos = [
+ordem = [
 "ESPORTES",
 "FILMES",
 "SÉRIES",
@@ -37,7 +35,7 @@ with open(origem, "r", encoding="utf-8") as f:
     linhas = f.readlines()
 
 grupos = {}
-for g in ordem_grupos:
+for g in ordem:
     grupos[g] = []
 
 i = 0
@@ -51,6 +49,7 @@ while i < len(linhas):
         grupo = "VARIEDADES"
 
         if 'group-title="' in linha:
+
             inicio = linha.find('group-title="') + 13
             fim = linha.find('"', inicio)
 
@@ -73,10 +72,10 @@ while i < len(linhas):
             elif grupo_original == "ANIME & GEEK":
                 grupo = "ANIME & TOKUSATSU"
 
-        linha = linha.replace(
-            f'group-title="{grupo_original}"',
-            f'group-title="{grupo}"'
-        )
+            linha = linha.replace(
+                f'group-title="{linha[inicio:fim]}"',
+                f'group-title="{grupo}"'
+            )
 
         partes = linha.split(",")
 
@@ -89,17 +88,14 @@ while i < len(linhas):
 
             nome = nome.upper()
 
-            nova_extinf = partes[0] + "," + nome + "\n"
-
-        else:
-            nova_extinf = linha
+            linha = partes[0] + "," + nome + "\n"
 
         url = linhas[i+1]
 
         if grupo not in grupos:
             grupos[grupo] = []
 
-        grupos[grupo].append(nova_extinf)
+        grupos[grupo].append(linha)
         grupos[grupo].append(url)
 
         i += 2
@@ -107,15 +103,16 @@ while i < len(linhas):
 
     i += 1
 
+
 with open(saida, "w", encoding="utf-8") as out:
 
     out.write("#EXTM3U\n")
 
-    for grupo in ordem_grupos:
+    for grupo in ordem:
 
         if grupo in grupos:
 
             for linha in grupos[grupo]:
                 out.write(linha)
 
-print("Playlist Pluto organizada com sucesso!")
+print("Playlist organizada com sucesso!")
