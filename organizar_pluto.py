@@ -35,8 +35,6 @@ with open(origem, "r", encoding="utf-8") as f:
     linhas = f.readlines()
 
 grupos = {}
-for g in ordem:
-    grupos[g] = []
 
 i = 0
 
@@ -90,7 +88,6 @@ while i < len(linhas):
 
             linha = partes[0] + "," + nome + "\n"
 
-        # encontrar a URL real do canal
         j = i + 1
         url = ""
 
@@ -118,10 +115,15 @@ with open(saida, "w", encoding="utf-8") as out:
 
     out.write("#EXTM3U\n")
 
+    # escreve grupos na ordem definida
     for grupo in ordem:
-
         if grupo in grupos:
+            for linha in grupos[grupo]:
+                out.write(linha)
 
+    # escreve qualquer grupo que sobrar (evita perda de canais)
+    for grupo in grupos:
+        if grupo not in ordem:
             for linha in grupos[grupo]:
                 out.write(linha)
 
