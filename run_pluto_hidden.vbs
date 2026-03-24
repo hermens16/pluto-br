@@ -1,6 +1,6 @@
 Set WshShell = CreateObject("WScript.Shell")
 
-WshShell.CurrentDirectory = "C:\Users\User\Dev\pluto_final"
+WshShell.CurrentDirectory = "C:\Users\User\Dev\pluto-tv"
 
 ' atualiza a playlist
 WshShell.Run "cmd /c atualizar_pluto.bat", 0, True
